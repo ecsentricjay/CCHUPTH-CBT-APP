@@ -1,0 +1,15 @@
+{
+  "name": "CCHUPTH-cbt-system",
+  "version": "1.0.0",
+  "description": "CCHUPTH Computer Based Test",
+  "scripts": {
+    "dev": "npx serve",
+    "start": "npx serve"
+  },
+  "devDependencies": {
+    "serve": "^14.2.0"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}

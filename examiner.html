@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBT Examiner Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Login Screen */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-box h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #11998e;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem 0;
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 2rem;
+        }
+
+        .logo h2 {
+            color: #11998e;
+            font-size: 1.5rem;
+        }
+
+        .nav-item {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            color: #555;
+        }
+
+        .nav-item:hover {
+            background: #f5f5f5;
+            border-left-color: #11998e;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, #11998e15, transparent);
+            border-left-color: #11998e;
+            color: #11998e;
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+        }
+
+        .logout-btn {
+            margin: 2rem;
+            padding: 0.8rem;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: calc(100% - 4rem);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .logout-btn:hover {
+            background: #d32f2f;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 1.8rem;
+        }
+
+        .examiner-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .examiner-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h3 {
+            color: #888;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-trend {
+            font-size: 0.85rem;
+            color: #11998e;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .card-header h2 {
+            color: #333;
+            font-size: 1.4rem;
+        }
+
+        .btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(17, 153, 142, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #555;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #11998e;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f5f5f5;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            color: #666;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-view {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-edit {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #f44336;
+            color: white;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #999;
+        }
+
+        .default-credentials {
+            margin-top: 1rem;
+            text-align: center;
+            color: #999;
+            font-size: 0.9rem;
+            padding: 0.8rem;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        .filter-section {
+            background: #f5f5f5;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-section h3 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        /* Live Monitoring */
+        .live-exam-card {
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+
+        .live-exam-card:hover {
+            border-color: #11998e;
+            box-shadow: 0 4px 12px rgba(17, 153, 142, 0.2);
+        }
+
+        .live-exam-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .live-timer {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #11998e;
+        }
+
+        .live-timer.warning {
+            color: #ff9800;
+        }
+
+        .live-timer.danger {
+            color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-box">
+            <h1>🎯 Examiner Login</h1>
+            <div id="loginAlert"></div>
+            <form onsubmit="examinerLogin(event)">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="loginUsername" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            </form>
+            <div class="default-credentials">
+                Default: <strong>examiner / examiner123</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="mainDashboard" class="container hidden">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h2>🎯 Examiner Portal</h2>
+            </div>
+            <div class="nav-item active" data-section="dashboard">
+                <span class="nav-icon">📊</span>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-item" data-section="students">
+                <span class="nav-icon">👨‍🎓</span>
+                <span>Students</span>
+            </div>
+            <div class="nav-item" data-section="live-monitoring">
+                <span class="nav-icon">🔴</span>
+                <span>Live Monitoring</span>
+            </div>
+            <div class="nav-item" data-section="results">
+                <span class="nav-icon">📈</span>
+                <span>Results</span>
+            </div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1 id="pageTitle">Dashboard</h1>
+                <div class="examiner-info">
+                    <div class="examiner-avatar">EX</div>
+                    <span id="examinerName">Examiner</span>
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div class="content-section active" id="dashboard">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Students</h3>
+                        <div class="stat-value" id="totalStudents">0</div>
+                        <div class="stat-trend">↑ Registered</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Active Exams</h3>
+                        <div class="stat-value" id="activeExams">0</div>
+                        <div class="stat-trend">Currently In Progress</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Exams Completed Today</h3>
+                        <div class="stat-value" id="examsToday">0</div>
+                        <div class="stat-trend">Today</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Results</h3>
+                        <div class="stat-value" id="totalResults">0</div>
+                        <div class="stat-trend">All Time</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Quick Actions</h2>
+                    </div>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="switchSection('students')">View Students</button>
+                        <button class="btn btn-primary" onclick="switchSection('live-monitoring')">🔴 Live Monitoring</button>
+                        <button class="btn btn-secondary" onclick="switchSection('results')">View Results</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Students Section -->
+            <div class="content-section" id="students">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Student Management</h2>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Matric Number</th>
+                                    <th>Full Name</th>
+                                    <th>Email</th>
+                                    <th>Department</th>
+                                    <th>Level</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsTable">
+                                <tr><td colspan="6" class="loading">Loading students...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Monitoring Section -->
+            <div class="content-section" id="live-monitoring">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>🔴 Live Exam Monitoring</h2>
+                        <div style="background: #d1ecf1; padding: 0.5rem 1rem; border-radius: 8px;">
+                            <strong>Active Exams:</strong> <span id="liveActiveCount">0</span>
+                        </div>
+                    </div>
+                    <div style="background: #fff3cd; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; color: #856404;">
+                        <strong>ℹ️ Auto-refresh:</strong> This page refreshes every 10 seconds to show live exam status
+                    </div>
+                    <div id="liveExamsContainer">
+                        <!-- Live exams will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="content-section" id="results">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Exam Results</h2>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-secondary" onclick="printFilteredResults()">🖨️ Print</button>
+                            <button class="btn btn-secondary" onclick="exportFilteredResults()">📥 Export CSV</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Filters -->
+                    <div class="filter-section">
+                        <h3>🔍 Filter Results</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>Course</label>
+                                <select id="filterCourse" class="form-control">
+                                    <option value="">All Courses</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>Level</label>
+                                <select id="resultFilterLevel" class="form-control">
+                                    <option value="">All Levels</option>
+                                    <option value="100">100 Level</option>
+                                    <option value="200">200 Level</option>
+                                    <option value="300">300 Level</option>
+                                    <option value="400">400 Level</option>
+                                    <option value="500">500 Level</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; align-items: flex-end; gap: 0.5rem;">
+                                <button class="btn btn-primary" onclick="applyResultFilters()" style="flex: 1;">Apply Filters</button>
+                                <button class="btn btn-secondary" onclick="clearResultFilters()" style="flex: 1;">Clear</button>
+                            </div>
+                        </div>
+                        <div style="margin-top: 1rem; color: #666; font-size: 0.9rem;">
+                            <strong>Showing:</strong> <span id="filteredResultsCount">0</span> results
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Matric Number</th>
+                                    <th>Student Name</th>
+                                    <th>Level</th>
+                                    <th>Course</th>
+                                    <th>Score (%)</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsTable">
+                                <tr><td colspan="7" class="loading">Loading results...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Details Modal -->
+    <div class="modal" id="studentDetailsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Student Details</h2>
+                <button class="close-btn" onclick="closeModal('studentDetailsModal')">&times;</button>
+            </div>
+            <div id="studentDetailsContent">
+                <!-- Student details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Details Modal -->
+    <div class="modal" id="resultDetailsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Result Details</h2>
+                <button class="close-btn" onclick="closeModal('resultDetailsModal')">&times;</button>
+            </div>
+            <div id="resultDetailsContent">
+                <!-- Result details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Include JavaScript files -->
+    <script src="config.js"></script>
+    <script src="examiner.js"></script>
+</body>
+</html>

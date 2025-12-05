@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBT Exam System - Welcome</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .welcome-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+        }
+
+        .portal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .portal-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .portal-card:hover {
+            transform: translateY(-10px);
+            border-color: #667eea;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .portal-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .portal-card h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .portal-card p {
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .admin-card {
+            border-color: #667eea;
+        }
+
+        .student-card {
+            border-color: #4caf50;
+        }
+
+        .admin-card .portal-icon {
+            color: #667eea;
+        }
+
+        .student-card .portal-icon {
+            color: #4caf50;
+        }
+
+        .admin-card .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .student-card .btn {
+            background: linear-gradient(135deg, #4caf50, #45a049);
+        }
+
+        .footer {
+            margin-top: 3rem;
+            color: white;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .school-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .school-info img {
+            height: 80px;
+            width: auto;
+            margin-right: 20px;
+        }
+
+        .school-text {
+            text-align: left;
+        }
+
+        @media (max-width: 768px) {
+            .school-info {
+                flex-direction: column;
+                text-align: center;
+            }
+    
+            .school-info img {
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+    
+            .school-text {
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .portal-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .welcome-card {
+                padding: 2rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="welcome-card">
+            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                <img src="assets/school-logo.png" alt="School Logo" style="height: 80px; width: auto; margin-right: 20px;">
+                <div style="text-align: left;">
+                    <h1 style="margin: 0;">CCHUPTH CBT</h1>
+                    <p style="color: #666; font-size: 1rem; margin: 0.5rem 0 0 0;">College of Community Health</p>
+                    <p style="color: #888; font-size: 0.9rem; margin: 0;">University of Port Harcourt</p>
+                </div>
+            </div>
+            <p class="subtitle">Computer Based Testing Platform</p>
+            <div class="portal-grid">
+                <a href="/admin" class="portal-card admin-card">
+                    <div class="portal-icon">👨‍💼</div>
+                    <h2>Admin Portal</h2>
+                    <p>Manage students, courses, questions, and monitor exams in real-time. Access comprehensive analytics and results.</p>
+                    <div class="btn">Go to Admin Portal</div>
+                </a>
+                
+                <a href="/student" class="portal-card student-card">
+                    <div class="portal-icon">👨‍🎓</div>
+                    <h2>Student Portal</h2>
+                    <p>Take exams with randomized questions and options. View your results and track your academic progress.</p>
+                    <div class="btn">Go to Student Portal</div>
+                </a>
+            </div>
+            
+            <div class="footer">
+                <p style="font-weight: 600; margin-bottom: 0.5rem; color: #333">College of Community Health, University of Port Harcourt</p>
+                <p style="font-size: 0.85rem; margin-bottom: 1rem; color: #666">© 2025 Jugo Tech Solutions. All rights reserved.</p>
+                <p style="border-top: 1px solid rgba(185, 83, 17); padding-top: 0.8rem; margin-top: 0.8rem; color: #555">
+                    📞 09129562739 | ✉️ jugotech@example.com
+                </p>
+                <p style="font-size: 0.8rem; margin-top: 0.5rem; opacity: 0.7; color: #888">
+                    Developed by Jugo Tech Solutions
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Detect if running locally or on Vercel
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        
+        if (isLocalhost) {
+            console.log('Running on localhost');
+            // Update links for local testing
+            document.querySelector('a[href="/admin"]').href = 'index.html';
+            document.querySelector('a[href="/student"]').href = 'student.html';
+        }
+    </script>
+</body>
+</html>

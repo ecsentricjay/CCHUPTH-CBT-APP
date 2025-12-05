@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBT Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-box">
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <img src="assets/school-logo.png" alt="School Logo" style="height: 80px; width: auto; margin-bottom: 1rem;">
+                <h1 style="margin: 0; color: #667eea;">CCHUPTH CBT</h1>
+                <p style="color: #666; font-size: 0.9rem; margin: 0.3rem 0;">Admin Login</p>
+            </div>
+            <div id="loginAlert"></div>
+            <form onsubmit="adminLogin(event)">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="loginUsername" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            </form>
+            <div class="default-credentials">
+                For credentials: <strong>Contact School Authority</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="mainDashboard" class="container hidden">
+        <!-- Sidebar Component -->
+        <div id="sidebarComponent"></div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header Component -->
+            <div id="headerComponent"></div>
+
+            <!-- Dashboard Section -->
+            <div id="dashboardSection"></div>
+
+            <!-- Students Section -->
+            <div id="studentsSection"></div>
+
+            <!-- Courses Section -->
+            <div id="coursesSection"></div>
+
+            <!-- Questions Section -->
+            <div id="questionsSection"></div>
+
+            <!-- ADD THIS LINE FOR SUBJECTIVE QUESTIONS SECTION -->
+            <div id="subjectiveQuestionsSection"></div>
+
+            <!-- Results Section -->
+            <div id="resultsSection"></div>
+
+            <!-- ADD THIS FOOTER -->
+            <div id="footerComponent"></div>
+
+        </div>
+    </div>
+
+    <!-- Modals Container -->
+    <div id="modalsContainer"></div>
+
+    <!-- Include all JavaScript files IN CORRECT ORDER -->
+    <script src="config.js"></script>
+    <script src="globals.js"></script> <!-- Add this FIRST -->
+    <script src="components.js"></script>
+    <script src="utils.js"></script>
+    <script src="modal-functions.js"></script>
+    <script src="auth.js"></script>
+    <script src="dashboard.js"></script> <!-- Move dashboard BEFORE other data files -->
+    <script src="live-monitoring.js"></script> <!-- ADD THIS LINE -->
+    <script src="students_enhanced.js"></script>
+    <script src="courses.js"></script>
+    <script src="questions_enhanced.js"></script>
+    <script src="results.js"></script>
+    <script src="subjective-admin.js"></script>
+    <script src="init.js"></script>
+    
+    <!-- Fix for onclick handlers - add this script at the end -->
+    <script>
+        // This ensures functions are available when buttons are clicked
+        document.addEventListener('DOMContentLoaded', function() {
+            // Re-bind onclick handlers after components are rendered
+            setTimeout(function() {
+                bindButtonHandlers();
+            }, 100);
+        });
+        
+        function bindButtonHandlers() {
+            // Find and rebind all buttons that have onclick attributes
+            const buttons = document.querySelectorAll('button[onclick*="openAddStudentModal"]');
+            buttons.forEach(button => {
+                button.onclick = function(e) {
+                    e.preventDefault();
+                    openAddStudentModal();
+                };
+            });
+            
+            const bulkUploadButtons = document.querySelectorAll('button[onclick*="openBulkUploadStudentsModal"]');
+            bulkUploadButtons.forEach(button => {
+                button.onclick = function(e) {
+                    e.preventDefault();
+                    openBulkUploadStudentsModal();
+                };
+            });
+            
+            // Add other button bindings as needed
+            const addCourseButtons = document.querySelectorAll('button[onclick*="openAddCourseModal"]');
+            addCourseButtons.forEach(button => {
+                button.onclick = function(e) {
+                    e.preventDefault();
+                    openAddCourseModal();
+                };
+            });
+            
+            const addQuestionButtons = document.querySelectorAll('button[onclick*="openAddQuestionModal"]');
+            addQuestionButtons.forEach(button => {
+                button.onclick = function(e) {
+                    e.preventDefault();
+                    openAddQuestionModal();
+                };
+            });
+            
+            const bulkQuestionButtons = document.querySelectorAll('button[onclick*="openBulkUploadQuestionsModal"]');
+            bulkQuestionButtons.forEach(button => {
+                button.onclick = function(e) {
+                    e.preventDefault();
+                    openBulkUploadQuestionsModal();
+                };
+            });
+        }
+        
+        // Export functions to window for inline onclick handlers
+        window.openAddStudentModal = openAddStudentModal;
+        window.openBulkUploadStudentsModal = openBulkUploadStudentsModal;
+        window.openAddCourseModal = openAddCourseModal;
+        window.openAddQuestionModal = openAddQuestionModal;
+        window.openBulkUploadQuestionsModal = openBulkUploadQuestionsModal;
+        window.closeModal = closeModal;
+    </script>
+    <!-- Add this script right before </body> -->
+    <script>
+        // Fix for live monitoring button
+     document.addEventListener('click', function(e) {
+        // Check if live monitoring button was clicked
+            if (e.target.textContent.includes('Live Monitoring') || 
+                e.target.closest('button')?.textContent.includes('Live Monitoring')) {
+                e.preventDefault();
+            
+            // Try to find the function
+                if (typeof startLiveMonitoring === 'function') {
+                    startLiveMonitoring();
+                } else if (window.dashboard && window.dashboard.startLiveMonitoring) {
+                    window.dashboard.startLiveMonitoring();
+                } else {
+                    alert('Please refresh the page. Live monitoring is loading...');
+                    console.log('startLiveMonitoring not found, reloading page...');
+                    setTimeout(() => location.reload(), 1000);
+                }
+            }
+        
+            // Also handle close button in live monitoring modal
+            if (e.target.classList.contains('close-btn')) {
+                const modal = e.target.closest('.modal');
+                if (modal && modal.id === 'liveMonitoringModal') {
+                    e.preventDefault();
+                    if (typeof stopLiveMonitoring === 'function') {
+                        stopLiveMonitoring();
+                    } else if (window.dashboard && window.dashboard.stopLiveMonitoring) {
+                        window.dashboard.stopLiveMonitoring();
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
